@@ -7,7 +7,6 @@ from os import execl as osexecl
 from asyncio import create_subprocess_exec, gather
 from uuid import uuid4
 from base64 import b64decode
-from quoters import Quote
 from html import escape
 from cloudscraper import create_scraper
 
@@ -55,7 +54,7 @@ async def stats(_, message):
         'Mega':       config_dict.get('MEGA_LIMIT', '∞'),
         'User tasks': config_dict.get('USER_MAX_TASKS', '∞'),
     }
-    system_info = f'<spoiler>{quote}</spoiler>\n\n'\
+    system_info = f'<b><u>System Info</u></b>\n\n'\
         f'<b>• Bot uptime :</b> {currentTime}\n'\
         f'<b>• Sys uptime :</b> {osUptime}\n'\
         f'<b>• CPU usage  :</b> {cpuUsage}%\n'\
