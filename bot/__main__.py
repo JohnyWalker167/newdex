@@ -43,7 +43,6 @@ async def stats(_, message):
     sent        = get_readable_file_size(net_io_counters().bytes_sent)
     recv        = get_readable_file_size(net_io_counters().bytes_recv)
     tb          = get_readable_file_size(net_io_counters().bytes_sent + net_io_counters().bytes_recv)
-    quote = Quote.print().split('―', 1)[0].strip().replace("“", "").replace("”", "")
     limit_mapping = {
         'Torrent':    config_dict.get('TORRENT_LIMIT', '∞'),
         'Gdrive':     config_dict.get('GDRIVE_LIMIT', '∞'),
