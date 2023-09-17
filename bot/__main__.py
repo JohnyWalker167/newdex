@@ -44,28 +44,28 @@ async def stats(_, message):
     recv        = get_readable_file_size(net_io_counters().bytes_recv)
     tb          = get_readable_file_size(net_io_counters().bytes_sent + net_io_counters().bytes_recv)
     limit_mapping = {
-        'Torrent':    config_dict.get('TORRENT_LIMIT', '∞'),
-        'Gdrive':     config_dict.get('GDRIVE_LIMIT', '∞'),
-        'Ytdlp':      config_dict.get('YTDLP_LIMIT', '∞'),
-        'Direct':     config_dict.get('DIRECT_LIMIT', '∞'),
-        'Leech':      config_dict.get('LEECH_LIMIT', '∞'),
-        'Clone':      config_dict.get('CLONE_LIMIT', '∞'),
-        'Mega':       config_dict.get('MEGA_LIMIT', '∞'),
+        'Torrent': config_dict.get('TORRENT_LIMIT', '∞'),
+        'Gdrive': config_dict.get('GDRIVE_LIMIT', '∞'),
+        'Ytdlp': config_dict.get('YTDLP_LIMIT', '∞'),
+        'Direct': config_dict.get('DIRECT_LIMIT', '∞'),
+        'Leech': config_dict.get('LEECH_LIMIT', '∞'),
+        'Clone': config_dict.get('CLONE_LIMIT', '∞'),
+        'Mega': config_dict.get('MEGA_LIMIT', '∞'),
         'User tasks': config_dict.get('USER_MAX_TASKS', '∞'),
     }
-    system_info = f'<b><u>System info</u></b>\n'\
-        f'• Bot uptime : {currentTime}\n'\
-        f'• Sys uptime : {osUptime}\n'\
-        f'• CPU usage  : {cpuUsage}%\n'\
-        f'• RAM usage  : {memory.percent}%\n'\
-        f'• Disk usage : {disk}%\n'\
-        f'• Free space : {get_readable_file_size(free)}\n'\
+    system_info = f'<b>System info</b>\n'\
+        f'• Bot uptime: {currentTime}\n'\
+        f'• Sys uptime: {osUptime}\n'\
+        f'• CPU usage: {cpuUsage}%\n'\
+        f'• RAM usage: {memory.percent}%\n'\
+        f'• Disk usage: {disk}%\n'\
+        f'• Free space: {get_readable_file_size(free)}\n'\
         f'• Total space: {get_readable_file_size(total)}\n'\
         f'• Total Bandwidth: {tb}\n'\
         f'• Up: {sent} | <b>Down: {recv}\n\n'
     
             
-    limitations = f'<b><u>Limitations</u></b>\n'
+    limitations = f'<b>Limitations</b>\n'
     
     for k, v in limit_mapping.items():
         if v == '':
