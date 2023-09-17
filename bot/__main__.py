@@ -53,19 +53,19 @@ async def stats(_, message):
         'Mega':       config_dict.get('MEGA_LIMIT', '∞'),
         'User tasks': config_dict.get('USER_MAX_TASKS', '∞'),
     }
-    system_info = f'<b><u>System Info</u></b>\n\n'\
-        f'<b>• Bot uptime :</b> {currentTime}\n'\
-        f'<b>• Sys uptime :</b> {osUptime}\n'\
-        f'<b>• CPU usage  :</b> {cpuUsage}%\n'\
-        f'<b>• RAM usage  :</b> {memory.percent}%\n'\
-        f'<b>• Disk usage :</b> {disk}%\n'\
-        f'<b>• Free space :</b> {get_readable_file_size(free)}\n'\
-        f'<b>• Total space:</b> {get_readable_file_size(total)}\n'\
-        f'<b>• Total Bandwidth:</b> {tb}\n'\
-        f'<b>• Up:</b> {sent} | <b>Down:</b> {recv}\n\n'
+    system_info = f'<b><u>System info</u></b>\n'\
+        f'• Bot uptime : {currentTime}\n'\
+        f'• Sys uptime : {osUptime}\n'\
+        f'• CPU usage  : {cpuUsage}%\n'\
+        f'• RAM usage  : {memory.percent}%\n'\
+        f'• Disk usage : {disk}%\n'\
+        f'• Free space : {get_readable_file_size(free)}\n'\
+        f'• Total space: {get_readable_file_size(total)}\n'\
+        f'• Total Bandwidth: {tb}\n'\
+        f'• Up: {sent} | <b>Down: {recv}\n\n'
     
             
-    limitations = f'<b>LIMITATIONS</b>\n\n'
+    limitations = f'<b><u>Limitations</u></b>\n'
     
     for k, v in limit_mapping.items():
         if v == '':
@@ -74,7 +74,7 @@ async def stats(_, message):
             v = f'{v}GB/Link'
         else:
             v = f'{v} Tasks/user'
-        limitations += f'<b>• {k:<11}:</b> {v}\n'
+        limitations += f'• {k:<11}: {v}\n'
 
     stats = system_info + limitations
     reply_message = await sendMessage(message, stats, photo='IMAGES')
