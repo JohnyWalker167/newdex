@@ -50,7 +50,7 @@ async def stats(_, message):
         'Direct': config_dict.get('DIRECT_LIMIT', '∞'),
         'Leech': config_dict.get('LEECH_LIMIT', '∞'),
         'Clone': config_dict.get('CLONE_LIMIT', '∞'),
-        '☁️Mega': config_dict.get('MEGA_LIMIT', '∞'),
+        'Mega': config_dict.get('MEGA_LIMIT', '∞'),
         'User tasks': config_dict.get('USER_MAX_TASKS', '∞'),
     }
     system_info = f'<b>System info</b>\n'\
