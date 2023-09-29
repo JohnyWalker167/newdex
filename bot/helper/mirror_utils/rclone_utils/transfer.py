@@ -276,7 +276,7 @@ class RcloneTransferHelper:
                 destination = f"{oremote}:{rc_path}/{self.name}"
             else:
                 destination = f"{oremote}:{self.name}"
-                link = ''
+            link = ''
         if self.__is_cancelled:
             return
         LOGGER.info(f'Upload Done. Path: {destination}')
