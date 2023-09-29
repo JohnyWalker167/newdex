@@ -276,15 +276,6 @@ class RcloneTransferHelper:
                 destination = f"{oremote}:{rc_path}/{self.name}"
             else:
                 destination = f"{oremote}:{self.name}"
-
-            cmd = ['zcl', 'link', '--config', oconfig_path, destination]
-            res, err, code = await cmd_exec(cmd)
-
-            if code == 0:
-                link = res
-            elif code != -9:
-                LOGGER.error(
-                    f'while getting link. Path: {destination} | Stderr: {err}')
                 link = ''
         if self.__is_cancelled:
             return
