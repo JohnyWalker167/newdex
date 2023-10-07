@@ -450,7 +450,6 @@ class MirrorLeechListener:
             else:
                 msg += f'<b>• Path: </b><code>{rclonePath}</code>\n'
                 button = None
-            msg += f'<b>• Uploaded by: </b>{self.message.from_user.mention()}\n\n'
             if config_dict['MIRROR_LOG_ID']:
                 buttonss = button
                 log_msg = list((await sendMultiMessage(config_dict['MIRROR_LOG_ID'], nmsg + msg, buttonss)).values())[0]
