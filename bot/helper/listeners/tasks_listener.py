@@ -484,9 +484,7 @@ async def extract_movie_info(caption):
                 if self.linkslogmsg:
                     await deleteMessage(self.linkslogmsg)
             buttons = ButtonMaker()
-            movie_name, release_year = await extract_movie_info(name)
-            tmdb_poster_url = await get_movie_poster(movie_name, release_year)
-            await sendMessage(self.botpmmsg, nmsg + msg, button, photo=tmdb_poster_url)
+            await sendMessage(self.botpmmsg, nmsg + msg, button)
             await deleteMessage(self.botpmmsg)
             if self.isSuperGroup:
                 buttons.ibutton('View in DM', f"aeon {user_id} botpm", 'header')
