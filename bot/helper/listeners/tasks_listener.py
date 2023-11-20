@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import re
+import requests
 from random import choice
 from time import time
 from pytz import timezone
@@ -31,7 +33,8 @@ from bot.helper.mirror_utils.rclone_utils.transfer import RcloneTransferHelper
 from bot.helper.telegram_helper.message_utils import sendCustomMsg, sendMessage, editMessage, delete_all_messages, delete_links, sendMultiMessage, update_all_messages, deleteMessage, five_minute_del
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.db_handler import DbManager
-
+from bot.helper.ext_utils.shortners import short_url
+from bot.helper.ext_utils.aeon_utils import tinyfy
 
 
 class MirrorLeechListener:
@@ -103,6 +106,33 @@ class MirrorLeechListener:
         self.botpmmsg = await sendCustomMsg(self.message.from_user.id, '<b>Task started</b>')
         if self.isSuperGroup and config_dict['INCOMPLETE_TASK_NOTIFIER'] and DATABASE_URL:
             await DbManager().add_incomplete_task(self.message.chat.id, self.message.link, self.tag)
+
+async def get_movie_poster(movie_name, release_year):
+    tmdb_api_key = '0dfbeb8ce49d198fb0bf99e08b6a8557'
+    tmdb_api_url = f'https://api.themoviedb.org/3/search/multi?api_key={tmdb_api_key}&query={movie_name}&year={release_year}'
+
+    try:
+        response = requests.get(tmdb_api_url)
+        data = response.json()
+
+        if data['results']:
+            poster_path = data['results'][0]['poster_path']
+            return f"https://image.tmdb.org/t/p/original{poster_path}"
+        else:
+            print(f"No results found for movie: {movie_name} ({release_year})")
+    except Exception as e:
+        print(f"Error fetching TMDB data: {e}")
+
+async def extract_movie_info(caption):
+    regex = re.compile(r'(.+?)(\d{4})')
+    match = regex.search(caption)
+
+    if match:
+        movie_name = match.group(1).replace('.', ' ').strip()
+        release_year = match.group(2)
+        return movie_name, release_year
+
+    return None, None
 
     async def onDownloadComplete(self):
         multi_links = False
@@ -372,15 +402,12 @@ class MirrorLeechListener:
         user_dict = user_data.get(user_id, {})
         nmsg = f'<b>• Name:</b> {escape(name)}\n\n'
         msg = f'<b>• Size: </b>{get_readable_file_size(size)}\n'
-        msg += f'<b>• Elapsed: </b>{get_readable_time(time() - self.message.date.timestamp())}\n'
-        msg += f'<b>• Mode: </b>{self.upload_details["mode"]}\n'
         LOGGER.info(f'Task Done: {name}')
         buttons = ButtonMaker()
         if self.isLeech:
             msg += f'<b>• Total files: </b>{folders}\n'
             if mime_type != 0:
                 msg += f'<b>• Corrupted files: </b>{mime_type}\n'
-            msg += f'<b>• Leeched by: </b>{self.message.from_user.mention()}\n\n'
             if not files:
                 if self.isPrivate:
                     msg += '<b>Files have not been sent for an unspecified reason</b>'
@@ -428,7 +455,7 @@ class MirrorLeechListener:
                 msg += f'<b>• Files: </b>{files}\n'
             if link or rclonePath and config_dict['RCLONE_SERVE_URL']:
                 if link:
-                    buttons.ubutton('Cloud link', link)
+                    buttons.ubutton('Cloud link', tinyfy(short_url(link)))
                 else:
                     msg += f'<b>• Path: </b><code>{rclonePath}</code>\n'
                 if rclonePath and (RCLONE_SERVE_URL := config_dict['RCLONE_SERVE_URL']):
@@ -451,14 +478,15 @@ class MirrorLeechListener:
             else:
                 msg += f'<b>• Path: </b><code>{rclonePath}</code>\n'
                 button = None
-            msg += f'<b>• Uploaded by: </b>{self.message.from_user.mention()}\n\n'
             if config_dict['MIRROR_LOG_ID']:
                 buttonss = button
                 log_msg = list((await sendMultiMessage(config_dict['MIRROR_LOG_ID'], nmsg + msg, buttonss)).values())[0]
                 if self.linkslogmsg:
                     await deleteMessage(self.linkslogmsg)
             buttons = ButtonMaker()
-            await sendMessage(self.botpmmsg, nmsg + msg, button, self.random_pic)
+            movie_name, release_year = await extract_movie_info(name)
+            tmdb_poster_url = await get_movie_poster(movie_name, release_year)
+            await sendMessage(self.botpmmsg, nmsg + msg, button, photo=tmdb_poster_url)
             await deleteMessage(self.botpmmsg)
             if self.isSuperGroup:
                 buttons.ibutton('View in DM', f"aeon {user_id} botpm", 'header')
