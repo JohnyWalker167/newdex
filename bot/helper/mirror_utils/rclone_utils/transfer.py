@@ -11,8 +11,6 @@ from logging import getLogger
 from bot import config_dict, GLOBAL_EXTENSION_FILTER
 from bot.helper.ext_utils.bot_utils import cmd_exec, sync_to_async
 from bot.helper.ext_utils.fs_utils import get_mime_type, count_files_and_folders
-from bot.helper.ext_utils.shortners import short_url
-from bot.helper.ext_utils.aeon_utils import tinyfy
 
 
 LOGGER = getLogger(__name__)
@@ -287,7 +285,7 @@ class RcloneTransferHelper:
             elif code != -9:
                 LOGGER.error(
                     f'while getting link. Path: {destination} | Stderr: {err}')
-                link = tinyfy(short_url(link))
+                link = ''
         if self.__is_cancelled:
             return
         LOGGER.info(f'Upload Done. Path: {destination}')
