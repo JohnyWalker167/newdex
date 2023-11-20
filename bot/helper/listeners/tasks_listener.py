@@ -374,18 +374,17 @@ class MirrorLeechListener:
         user_id = self.message.from_user.id
         name, _ = await format_filename(name, user_id, isMirror=not self.isLeech)
         user_dict = user_data.get(user_id, {})
-        nmsg = f'<b>• Name:</b> {escape(name)}\n\n'
-        msg = f'<b>• Size: </b>{get_readable_file_size(size)}\n'
+        nmsg = f'<b>Name: {escape(name)}</b>\n\n'
+        msg = f'<b>Size: {get_readable_file_size(size)}</b>\n'
         
         LOGGER.info(f'Task Done: {name}')
         movie_name, release_year = await extract_movie_info(name)
         tmdb_poster_url = await get_movie_poster(movie_name, release_year)
         buttons = ButtonMaker()
         if self.isLeech:
-            msg += f'<b>• Total files: </b>{folders}\n'
+            msg += f'<b>Total files: {folders}</b>\n'
             if mime_type != 0:
-                msg += f'<b>• Corrupted files: </b>{mime_type}\n'
-            msg += f'<b>• Leeched by: </b>{self.message.from_user.mention()}\n\n'
+                msg += f'<b>Corrupted files: </b>{mime_type}\n'
             if not files:
                 if self.isPrivate:
                     msg += '<b>Files have not been sent for an unspecified reason</b>'
@@ -427,16 +426,15 @@ class MirrorLeechListener:
                 await start_from_queued()
                 return
         else:
-            msg += f'<b>• Type: </b>{mime_type}\n'
             if mime_type == "Folder":
-                msg += f'<b>• SubFolders: </b>{folders}\n'
-                msg += f'<b>• Files: </b>{files}\n'
+                msg += f'<b>SubFolders: </b>{folders}\n'
+                msg += f'<b>Files: </b>{files}\n'
             if link or rclonePath and config_dict['RCLONE_SERVE_URL']:
                 if link:
                     shorty = tinyfy(short_url(link))
-                    buttons.ubutton('Cloud link', shorty)
+                    buttons.ubutton('☁️ Cloud link', shorty)
                 else:
-                    msg += f'<b>• Path: </b><code>{rclonePath}</code>\n'
+                    msg += f'<b>Path: </b><code>{rclonePath}</code>\n'
                 if rclonePath and (RCLONE_SERVE_URL := config_dict['RCLONE_SERVE_URL']):
                     remote, path = rclonePath.split(':', 1)
                     url_path = rutils.quote(f'{path}')
@@ -455,7 +453,7 @@ class MirrorLeechListener:
                 buttons = extra_btns(buttons)
                 button = buttons.build_menu(2)
             else:
-                msg += f'<b>• Path: </b><code>{rclonePath}</code>\n'
+                msg += f'<b>Path: </b><code>{rclonePath}</code>\n'
                 button = None
             if config_dict['MIRROR_LOG_ID']:
                 buttonss = button
