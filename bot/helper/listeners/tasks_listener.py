@@ -107,32 +107,6 @@ class MirrorLeechListener:
         if self.isSuperGroup and config_dict['INCOMPLETE_TASK_NOTIFIER'] and DATABASE_URL:
             await DbManager().add_incomplete_task(self.message.chat.id, self.message.link, self.tag)
 
-async def get_movie_poster(movie_name, release_year):
-    tmdb_api_key = '0dfbeb8ce49d198fb0bf99e08b6a8557'
-    tmdb_api_url = f'https://api.themoviedb.org/3/search/multi?api_key={tmdb_api_key}&query={movie_name}&year={release_year}'
-
-    try:
-        response = requests.get(tmdb_api_url)
-        data = response.json()
-
-        if data['results']:
-            poster_path = data['results'][0]['poster_path']
-            return f"https://image.tmdb.org/t/p/original{poster_path}"
-        else:
-            print(f"No results found for movie: {movie_name} ({release_year})")
-    except Exception as e:
-        print(f"Error fetching TMDB data: {e}")
-
-async def extract_movie_info(caption):
-    regex = re.compile(r'(.+?)(\d{4})')
-    match = regex.search(caption)
-
-    if match:
-        movie_name = match.group(1).replace('.', ' ').strip()
-        release_year = match.group(2)
-        return movie_name, release_year
-
-    return None, None
 
     async def onDownloadComplete(self):
         multi_links = False
@@ -455,7 +429,7 @@ async def extract_movie_info(caption):
                 msg += f'<b>• Files: </b>{files}\n'
             if link or rclonePath and config_dict['RCLONE_SERVE_URL']:
                 if link:
-                    buttons.ubutton('Cloud link', tinyfy(short_url(link)))
+                    buttons.ubutton('Cloud link', link)
                 else:
                     msg += f'<b>• Path: </b><code>{rclonePath}</code>\n'
                 if rclonePath and (RCLONE_SERVE_URL := config_dict['RCLONE_SERVE_URL']):
@@ -606,3 +580,30 @@ Your upload has been stopped!
         await clean_download(self.dir)
         if self.newDir:
             await clean_download(self.newDir)
+
+async def get_movie_poster(movie_name, release_year):
+    tmdb_api_key = '0dfbeb8ce49d198fb0bf99e08b6a8557'
+    tmdb_api_url = f'https://api.themoviedb.org/3/search/multi?api_key={tmdb_api_key}&query={movie_name}&year={release_year}'
+
+    try:
+        response = requests.get(tmdb_api_url)
+        data = response.json()
+
+        if data['results']:
+            poster_path = data['results'][0]['poster_path']
+            return f"https://image.tmdb.org/t/p/original{poster_path}"
+        else:
+            print(f"No results found for movie: {movie_name} ({release_year})")
+    except Exception as e:
+        print(f"Error fetching TMDB data: {e}")
+
+async def extract_movie_info(caption):
+    regex = re.compile(r'(.+?)(\d{4})')
+    match = regex.search(caption)
+
+    if match:
+        movie_name = match.group(1).replace('.', ' ').strip()
+        release_year = match.group(2)
+        return movie_name, release_year
+
+    return None, None
