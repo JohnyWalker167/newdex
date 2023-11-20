@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import re
+import requests
 from random import choice
 from time import time
 from pytz import timezone
@@ -374,9 +376,10 @@ class MirrorLeechListener:
         user_dict = user_data.get(user_id, {})
         nmsg = f'<b>• Name:</b> {escape(name)}\n\n'
         msg = f'<b>• Size: </b>{get_readable_file_size(size)}\n'
-        msg += f'<b>• Elapsed: </b>{get_readable_time(time() - self.message.date.timestamp())}\n'
-        msg += f'<b>• Mode: </b>{self.upload_details["mode"]}\n'
+        
         LOGGER.info(f'Task Done: {name}')
+        movie_name, release_year = await extract_movie_info(name)
+        tmdb_poster_url = await get_movie_poster(movie_name, release_year)
         buttons = ButtonMaker()
         if self.isLeech:
             msg += f'<b>• Total files: </b>{folders}\n'
@@ -454,14 +457,14 @@ class MirrorLeechListener:
             else:
                 msg += f'<b>• Path: </b><code>{rclonePath}</code>\n'
                 button = None
-            msg += f'<b>• Uploaded by: </b>{self.message.from_user.mention()}\n\n'
             if config_dict['MIRROR_LOG_ID']:
                 buttonss = button
                 log_msg = list((await sendMultiMessage(config_dict['MIRROR_LOG_ID'], nmsg + msg, buttonss)).values())[0]
                 if self.linkslogmsg:
                     await deleteMessage(self.linkslogmsg)
             buttons = ButtonMaker()
-            await sendMessage(self.botpmmsg, nmsg + msg, button, self.random_pic)
+            photo = tmdb_poster_url
+            await sendMessage(self.botpmmsg, nmsg + msg, button, photo)
             await deleteMessage(self.botpmmsg)
             if self.isSuperGroup:
                 buttons.ibutton('View in DM', f"aeon {user_id} botpm", 'header')
@@ -583,3 +586,32 @@ Your upload has been stopped!
         await clean_download(self.dir)
         if self.newDir:
             await clean_download(self.newDir)
+
+async def extract_movie_info(caption):
+    regex = re.compile(r'(.+?)(\d{4})')
+    match = regex.search(caption)
+
+    if match:
+        movie_name = match.group(1).replace('.', ' ').strip()
+        release_year = match.group(2)
+        return movie_name, release_year
+
+    return None, None
+
+async def get_movie_poster(movie_name, release_year):
+    tmdb_api_key = '0dfbeb8ce49d198fb0bf99e08b6a8557'
+    tmdb_api_url = f'https://api.themoviedb.org/3/search/multi?api_key={tmdb_api_key}&query={movie_name}&year={release_year}'
+
+    try:
+        response = requests.get(tmdb_api_url)
+        data = response.json()
+
+        if data['results']:
+            poster_path = data['results'][0]['poster_path']
+            return f"https://image.tmdb.org/t/p/original{poster_path}"
+        else:
+            print(f"No results found for movie: {movie_name} ({release_year})")
+    except Exception as e:
+        print(f"Error fetching TMDB data: {e}")
+
+    return None
