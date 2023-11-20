@@ -424,12 +424,12 @@ class MirrorLeechListener:
                 return
         else:
             msg += f'<b>• Type: </b>{mime_type}\n'
+            shortlink = tiny(shorten_url(link))
             if mime_type == "Folder":
                 msg += f'<b>• SubFolders: </b>{folders}\n'
                 msg += f'<b>• Files: </b>{files}\n'
-            if link or rclonePath and config_dict['RCLONE_SERVE_URL']:
-                if link:
-                    shortlink = tiny(shorten_url(link))
+            if shortlink or rclonePath and config_dict['RCLONE_SERVE_URL']:
+                if shortlink:
                     buttons.ubutton('Cloud link', shortlink)
                 else:
                     msg += f'<b>• Path: </b><code>{rclonePath}</code>\n'
