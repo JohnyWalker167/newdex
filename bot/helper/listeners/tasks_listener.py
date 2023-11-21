@@ -453,17 +453,12 @@ class MirrorLeechListener:
                 buttons = extra_btns(buttons)
                 button = buttons.build_menu(2)
                 photo = tmdb_poster_url
-                gojo_path = 'poster/gojo.png'
             else:
                 msg += f'<b>Path: </b><code>{rclonePath}</code>\n'
                 button = None
-            try:
                 if config_dict['MIRROR_LOG_ID']:
                    buttonss = button
                    log_msg = list((await sendMultiMessage(config_dict['MIRROR_LOG_ID'], nmsg + msg, buttonss, photo)).values())[0]
-            except Exception as e:
-                   print(e)
-                   log_msg = list((await sendMultiMessage(config_dict['MIRROR_LOG_ID'], nmsg + msg, buttonss, gojo_path)).values())[0]
                    if self.linkslogmsg:
                     await deleteMessage(self.linkslogmsg)
             buttons = ButtonMaker()
