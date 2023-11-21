@@ -586,14 +586,16 @@ Your upload has been stopped!
             await clean_download(self.newDir)
 
 async def extract_movie_info(caption):
-    regex = re.compile(r'(.+?)(\d{4})')
-    match = regex.search(caption)
+    try:
+        regex = re.compile(r'(.+?)(\d{4})')
+        match = regex.search(caption)
 
-    if match:
-        movie_name = match.group(1).replace('.', ' ').strip()
-        release_year = match.group(2)
-        return movie_name, release_year
-
+        if match:
+             movie_name = match.group(1).replace('.', ' ').strip()
+             release_year = match.group(2)
+             return movie_name, release_year
+    except Exception as e:
+        print(e)
     return None, None
 
 async def get_movie_poster(movie_name, release_year):
