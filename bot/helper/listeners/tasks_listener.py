@@ -461,7 +461,7 @@ class MirrorLeechListener:
                 if config_dict['MIRROR_LOG_ID']:
                    buttonss = button
                    log_msg = list((await sendMultiMessage(config_dict['MIRROR_LOG_ID'], nmsg + msg, buttonss, photo)).values())[0]
-            except Exception as e
+            except Exception as e:
                    print(e)
                    log_msg = list((await sendMultiMessage(config_dict['MIRROR_LOG_ID'], nmsg + msg, buttonss, gojo_path)).values())[0]                   
                 if self.linkslogmsg:
