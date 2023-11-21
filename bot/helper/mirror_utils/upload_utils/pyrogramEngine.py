@@ -356,8 +356,8 @@ class TgUploader:
 
             movie_name, release_year = await extract_movie_info(file_name)
             tmdb_poster_url = await get_movie_poster(movie_name, release_year)
-
-            if self.__leech_utils['thumb']:
+            LOGGER.info("Got the poster")
+            if tmdb_poster_url:
                 thumb = await self.get_custom_thumb(tmdb_poster_url)
             if not is_image and thumb is None:
                 file_name = ospath.splitext(file)[0]
