@@ -452,16 +452,16 @@ class MirrorLeechListener:
                         buttons.ubutton('Index link', share_url)
                 buttons = extra_btns(buttons)
                 button = buttons.build_menu(2)
+                photo = tmdb_poster_url
             else:
                 msg += f'<b>Path: </b><code>{rclonePath}</code>\n'
                 button = None
             if config_dict['MIRROR_LOG_ID']:
                 buttonss = button
-                log_msg = list((await sendMultiMessage(config_dict['MIRROR_LOG_ID'], nmsg + msg, buttonss)).values())[0]
+                log_msg = list((await sendMultiMessage(config_dict['MIRROR_LOG_ID'], nmsg + msg, buttonss, photo)).values())[0]
                 if self.linkslogmsg:
                     await deleteMessage(self.linkslogmsg)
             buttons = ButtonMaker()
-            photo = tmdb_poster_url
             await sendMessage(self.botpmmsg, nmsg + msg, button, photo)
             await deleteMessage(self.botpmmsg)
             if self.isSuperGroup:
