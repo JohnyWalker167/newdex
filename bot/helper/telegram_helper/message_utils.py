@@ -94,6 +94,7 @@ async def isAdmin(message, user_id=None):
     return member.status in [member.status.ADMINISTRATOR, member.status.OWNER]
 
 async def sendMultiMessage(chat_ids, text, buttons=None, photo=None):
+    gojo_path = 'poster/gojo.png'
     msg_dict = {}
     for channel_id in chat_ids.split():
         chat = await chat_info(channel_id)
@@ -114,7 +115,7 @@ async def sendMultiMessage(chat_ids, text, buttons=None, photo=None):
                     return
                 except Exception as e:
                     LOGGER.error(str(e))
-            sent = await bot.send_message(chat_id=chat.id, text=text, disable_web_page_preview=True, disable_notification=True, reply_markup=buttons)
+            sent = await bot.send_photo(chat_id=chat.id, photo=gojo_path, caption=text, reply_markup=buttons, disable_notification=True)
             msg_dict[chat.id] = sent
         except FloodWait as f:
             LOGGER.warning(str(f))
