@@ -1,4 +1,5 @@
 import aiohttp
+import asyncio
 import aiofiles
 import re
 import requests
@@ -116,6 +117,16 @@ async def get_audio_thumb(audio_file):
         return None
     return des_dir
 
+async def download_file(url, dest_path):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            async with aiofiles.open(dest_path, 'wb') as f:
+                while True:
+                    chunk = await response.content.read(1024)
+                    if not chunk:
+                        break
+                    await f.write(chunk)
+
 
 async def take_ss(video_file, duration=None, total=1, gen_ss=False):
     des_dir = ospath.join('Thumbnails', f"{time()}")
@@ -127,10 +138,7 @@ async def take_ss(video_file, duration=None, total=1, gen_ss=False):
         if poster_url:
             # Download the movie poster
             poster_file = ospath.join(des_dir, f"{time()}_poster.jpg")
-            async with aiohttp.ClientSession() as session:
-                async with session.get(poster_url) as response:
-                    with await aiofiles.open(poster_file, 'wb') as f:
-                        await f.write(await response.read())
+            await download_file(poster_url, poster_file)
             return poster_file, None  # Return the poster file path and None for tstamps
 
     if duration is None:
