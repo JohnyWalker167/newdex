@@ -463,8 +463,8 @@ class MirrorLeechListener:
                    log_msg = list((await sendMultiMessage(config_dict['MIRROR_LOG_ID'], nmsg + msg, buttonss, photo)).values())[0]
             except Exception as e:
                    print(e)
-                   log_msg = list((await sendMultiMessage(config_dict['MIRROR_LOG_ID'], nmsg + msg, buttonss, gojo_path)).values())[0]                   
-                if self.linkslogmsg:
+                   log_msg = list((await sendMultiMessage(config_dict['MIRROR_LOG_ID'], nmsg + msg, buttonss, gojo_path)).values())[0]
+                   if self.linkslogmsg:
                     await deleteMessage(self.linkslogmsg)
             buttons = ButtonMaker()
             await sendMessage(self.botpmmsg, nmsg + msg, button, photo)
