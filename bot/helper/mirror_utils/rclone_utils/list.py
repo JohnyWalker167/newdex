@@ -169,6 +169,9 @@ class RcloneList:
         if self.list_status == 'rcu' or len(self.path_list) > 0:
             buttons.ibutton('Choose Current Path',
                             'rcq cur', position='footer')
+        if self.list_status == 'rcu':
+            buttons.ibutton('Set as Default Path',
+                            'rcq def', position='footer')
         if self.path or len(self.__sections) > 1 or self.__rc_user and self.__rc_owner:
             buttons.ibutton('Back', 'rcq back pa', position='footer')
         if self.path:
@@ -247,6 +250,7 @@ class RcloneList:
                  'rcd' else '\nTransfer Type: Upload')
             msg += f'\nTimeout: {get_readable_time(self.__timeout-(time()-self.__time))}'
             buttons = ButtonMaker()
+            buttons.ibutton('Owner Config', 'rcq owner')
             buttons.ibutton('My Config', 'rcq user')
             buttons.ibutton('Cancel', 'rcq cancel')
             button = buttons.build_menu(2)
