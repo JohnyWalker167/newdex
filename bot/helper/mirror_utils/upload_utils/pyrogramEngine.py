@@ -533,7 +533,7 @@ async def get_movie_poster(movie_name, release_year):
 
         if data['results']:
             poster_path = data['results'][0]['poster_path']
-            return f"https://image.tmdb.org/t/p/original{poster_path}"
+            return f"https://image.tmdb.org/t/p/original{backdrop_path}"
         else:
             print(f"No results found for movie: {movie_name} ({release_year})")
     except Exception as e:
