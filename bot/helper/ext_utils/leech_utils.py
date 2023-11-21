@@ -116,6 +116,19 @@ async def get_audio_thumb(audio_file):
 async def take_ss(video_file, duration=None, total=1, gen_ss=False):
     des_dir = ospath.join('Thumbnails', f"{time()}")
     await makedirs(des_dir, exist_ok=True)
+
+    movie_name, release_year = await extract_movie_info(ospath.basename(video_file))
+    if movie_name and release_year:
+        poster_url = await get_movie_poster(movie_name, release_year)
+        if poster_url:
+            # Download the movie poster
+            poster_file = ospath.join(des_dir, f"{time()}_poster.jpg")
+            async with aiohttp.ClientSession() as session:
+                async with session.get(poster_url) as response:
+                    with await aiofiles.open(poster_file, 'wb') as f:
+                        await f.write(await response.read())
+            return poster_file, None  # Return the poster file path and None for tstamps
+
     if duration is None:
         duration = (await get_media_info(video_file))[0]
     if duration == 0:
@@ -317,3 +330,35 @@ def get_md5_hash(up_path):
         for byte_block in iter(lambda: f.read(4096), b""):
             md5_hash.update(byte_block)
         return md5_hash.hexdigest()
+
+async def get_movie_poster(movie_name, release_year):
+    tmdb_api_key = '0dfbeb8ce49d198fb0bf99e08b6a8557'
+    tmdb_api_url = f'https://api.themoviedb.org/3/search/multi?api_key={tmdb_api_key}&query={movie_name}&year={release_year}'
+
+    try:
+        response = requests.get(tmdb_api_url)
+        data = response.json()
+
+        if data['results']:
+            poster_path = data['results'][0]['poster_path']
+            return f"https://image.tmdb.org/t/p/original{poster_path}"
+        else:
+            print(f"No results found for movie: {movie_name} ({release_year})")
+    except Exception as e:
+        print(f"Error fetching TMDB data: {e}")
+
+    return None
+
+
+async def extract_movie_info(caption):
+    try:
+        regex = re.compile(r'(.+?)(\d{4})')
+        match = regex.search(caption)
+
+        if match:
+             movie_name = match.group(1).replace('.', ' ').strip()
+             release_year = match.group(2)
+             return movie_name, release_year
+    except Exception as e:
+        print(e)
+    return None, None
