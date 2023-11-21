@@ -342,38 +342,6 @@ class TgUploader:
         await self.__listener.onUploadComplete(None, size, self.__msgs_dict, self.__total_files, self.__corrupted, self.name)
 
 
-async def extract_movie_info(caption):
-    try:
-        regex = re.compile(r'(.+?)(\d{4})')
-        match = regex.search(caption)
-
-        if match:
-             movie_name = match.group(1).replace('.', ' ').strip()
-             release_year = match.group(2)
-             return movie_name, release_year
-    except Exception as e:
-        print(e)
-    return None, None
-
-async def get_movie_poster(movie_name, release_year):
-    tmdb_api_key = '0dfbeb8ce49d198fb0bf99e08b6a8557'
-    tmdb_api_url = f'https://api.themoviedb.org/3/search/multi?api_key={tmdb_api_key}&query={movie_name}&year={release_year}'
-
-    try:
-        response = requests.get(tmdb_api_url)
-        data = response.json()
-
-        if data['results']:
-            poster_path = data['results'][0]['poster_path']
-            return f"https://image.tmdb.org/t/p/original{poster_path}"
-        else:
-            print(f"No results found for movie: {movie_name} ({release_year})")
-    except Exception as e:
-        print(f"Error fetching TMDB data: {e}")
-
-    return None
-
-
     @retry(wait=wait_exponential(multiplier=2, min=4, max=8), stop=stop_after_attempt(3),
            retry=retry_if_exception_type(Exception))
     async def __upload_file(self, cap_mono, file, force_document=False):
@@ -390,7 +358,7 @@ async def get_movie_poster(movie_name, release_year):
             tmdb_poster_url = await get_movie_poster(movie_name, release_year)
 
             if self.__leech_utils['thumb']:
-                thumb = await self.get_custom_thumb(self.__leech_utils['tmdb_poster_url'])
+                thumb = await self.get_custom_thumb(tmdb_poster_url)
             if not is_image and thumb is None:
                 file_name = ospath.splitext(file)[0]
                 thumb_path = f"{self.__path}/yt-dlp-thumb/{file_name}.jpg"
@@ -526,7 +494,6 @@ async def get_movie_poster(movie_name, release_year):
                 LOGGER.error(f"Retrying As Document. Path: {self.__up_path}")
                 return await self.__upload_file(cap_mono, file, True)
             raise err
-
     @property
     def speed(self):
         try:
@@ -542,3 +509,34 @@ async def get_movie_poster(movie_name, release_year):
         self.__is_cancelled = True
         LOGGER.info(f"Cancelling Upload: {self.name}")
         await self.__listener.onUploadError('Cancelled by user!')
+
+async def extract_movie_info(caption):
+    try:
+        regex = re.compile(r'(.+?)(\d{4})')
+        match = regex.search(caption)
+
+        if match:
+             movie_name = match.group(1).replace('.', ' ').strip()
+             release_year = match.group(2)
+             return movie_name, release_year
+    except Exception as e:
+        print(e)
+    return None, None
+
+async def get_movie_poster(movie_name, release_year):
+    tmdb_api_key = '0dfbeb8ce49d198fb0bf99e08b6a8557'
+    tmdb_api_url = f'https://api.themoviedb.org/3/search/multi?api_key={tmdb_api_key}&query={movie_name}&year={release_year}'
+
+    try:
+        response = requests.get(tmdb_api_url)
+        data = response.json()
+
+        if data['results']:
+            poster_path = data['results'][0]['poster_path']
+            return f"https://image.tmdb.org/t/p/original{poster_path}"
+        else:
+            print(f"No results found for movie: {movie_name} ({release_year})")
+    except Exception as e:
+        print(f"Error fetching TMDB data: {e}")
+
+    return None
