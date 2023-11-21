@@ -350,11 +350,13 @@ class TgUploader:
         self.__is_corrupted = False
         try:
             is_video, is_audio, is_image = await get_document_type(self.__up_path)
+
             movie_name, release_year = await extract_movie_info(cap_mono)
+
             if movie_name and release_year:
                 poster_url = await get_movie_poster(movie_name, release_year)
-                if poster_url:                    
-                thumb = await self.get_custom_thumb(poster_url)
+                if poster_url:
+                    thumb = await self.get_custom_thumb(poster_url)
             if not is_image and thumb is None:
                 file_name = ospath.splitext(file)[0]
                 thumb_path = f"{self.__path}/yt-dlp-thumb/{file_name}.jpg"
