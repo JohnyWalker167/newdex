@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import requests
+import re
 from traceback import format_exc
 from logging import getLogger, ERROR
 from aiofiles.os import remove as aioremove, path as aiopath, rename as aiorename, makedirs, rmdir, mkdir
@@ -348,9 +350,11 @@ class TgUploader:
         self.__is_corrupted = False
         try:
             is_video, is_audio, is_image = await get_document_type(self.__up_path)
-
-            if self.__leech_utils['thumb']:
-                thumb = await self.get_custom_thumb(self.__leech_utils['thumb'])
+            movie_name, release_year = await extract_movie_info(cap_mono)
+            if movie_name and release_year:
+                poster_url = await get_movie_poster(movie_name, release_year)
+                if poster_url:                    
+                thumb = await self.get_custom_thumb(poster_url)
             if not is_image and thumb is None:
                 file_name = ospath.splitext(file)[0]
                 thumb_path = f"{self.__path}/yt-dlp-thumb/{file_name}.jpg"
@@ -486,6 +490,36 @@ class TgUploader:
                 LOGGER.error(f"Retrying As Document. Path: {self.__up_path}")
                 return await self.__upload_file(cap_mono, file, True)
             raise err
+async def extract_movie_info(caption):
+    try:
+        regex = re.compile(r'(.+?)(\d{4})')
+        match = regex.search(caption)
+
+        if match:
+             movie_name = match.group(1).replace('.', ' ').strip()
+             release_year = match.group(2)
+             return movie_name, release_year
+    except Exception as e:
+        print(e)
+    return None, None
+    
+async def get_movie_poster(movie_name, release_year):
+    tmdb_api_key = '0dfbeb8ce49d198fb0bf99e08b6a8557'
+    tmdb_api_url = f'https://api.themoviedb.org/3/search/multi?api_key={tmdb_api_key}&query={movie_name}&year={release_year}'
+
+    try:
+        response = requests.get(tmdb_api_url)
+        data = response.json()
+
+        if data['results']:
+            poster_path = data['results'][0]['poster_path']
+            return f"https://image.tmdb.org/t/p/original{poster_path}"
+        else:
+            print(f"No results found for movie: {movie_name} ({release_year})")
+    except Exception as e:
+        print(f"Error fetching TMDB data: {e}")
+
+    return None 
 
     @property
     def speed(self):
@@ -502,3 +536,4 @@ class TgUploader:
         self.__is_cancelled = True
         LOGGER.info(f"Cancelling Upload: {self.name}")
         await self.__listener.onUploadError('Cancelled by user!')
+    
