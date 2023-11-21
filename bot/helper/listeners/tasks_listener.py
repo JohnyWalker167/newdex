@@ -456,10 +456,10 @@ class MirrorLeechListener:
             else:
                 msg += f'<b>Path: </b><code>{rclonePath}</code>\n'
                 button = None
-                if config_dict['MIRROR_LOG_ID']:
-                   buttonss = button
-                   log_msg = list((await sendMultiMessage(config_dict['MIRROR_LOG_ID'], nmsg + msg, buttonss, photo)).values())[0]
-                   if self.linkslogmsg:
+            if config_dict['MIRROR_LOG_ID']:
+                buttonss = button
+                log_msg = list((await sendMultiMessage(config_dict['MIRROR_LOG_ID'], nmsg + msg, buttonss, photo)).values())[0]
+                if self.linkslogmsg:
                     await deleteMessage(self.linkslogmsg)
             buttons = ButtonMaker()
             await sendMessage(self.botpmmsg, nmsg + msg, button, photo)
